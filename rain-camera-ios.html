@@ -391,23 +391,21 @@
 
             createDrop() {
                 return {
-                    x: Math.random() * (this.canvas.width + 200) - 100, // Start wider for diagonal
+                    x: Math.random() * this.canvas.width,
                     y: Math.random() * this.canvas.height - this.canvas.height,
                     length: Math.random() * 30 + 20,
                     speed: Math.random() * 8 + 6,
                     opacity: Math.random() * 0.4 + 0.25,
                     width: Math.random() * 3 + 2.5,
-                    blur: Math.random() * 2 + 1,
-                    windOffset: Math.random() * 3 + 2 // Stronger diagonal wind (was 1-3)
+                    blur: Math.random() * 2 + 1
                 };
             }
 
             update() {
                 for (let drop of this.drops) {
-                    drop.y += drop.speed;
-                    drop.x += drop.windOffset; // Move diagonally
+                    drop.y += drop.speed; // Only move down, no horizontal movement
                     
-                    if (drop.y > this.canvas.height || drop.x > this.canvas.width) {
+                    if (drop.y > this.canvas.height) {
                         drop.y = -drop.length;
                         drop.x = Math.random() * this.canvas.width;
                     }
