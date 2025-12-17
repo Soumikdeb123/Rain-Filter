@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rain Camera</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #D4B896 0%, #1C1C1C 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            color: white;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .manual-links {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .manual-links a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 15px;
+        }
+
+        .manual-links a:active {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="spinner"></div>
+    <p id="status">Detecting device...</p>
+    
+    <div class="manual-links" id="manualLinks" style="display: none;">
+        <p style="margin-bottom: 20px;">Choose your platform:</p>
+        <a href="rain-camera-ios.html">iOS / iPhone</a>
+        <a href="rain-camera-android.html">Android</a>
+    </div>
+
+    <script>
+        function detectOS() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            
+            // iOS detection
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                return 'ios';
+            }
+            
+            // Android detection
+            if (/android/i.test(userAgent)) {
+                return 'android';
+            }
+            
+            // Additional iOS detection for newer devices
+            if (navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)) {
+                return 'ios';
+            }
+            
+            // Check for Mac with touch (iPad with iPadOS 13+)
+            if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) {
+                return 'ios';
+            }
+            
+            return 'unknown';
+        }
+
+        function redirect() {
+            const os = detectOS();
+            const status = document.getElementById('status');
+            
+            if (os === 'ios') {
+                status.textContent = 'Redirecting to iOS version...';
+                setTimeout(() => {
+                    window.location.href = 'rain-camera-ios.html';
+                }, 500);
+            } else if (os === 'android') {
+                status.textContent = 'Redirecting to Android version...';
+                setTimeout(() => {
+                    window.location.href = 'rain-camera-android.html';
+                }, 500);
+            } else {
+                // Unknown device - show manual selection
+                status.textContent = 'Unable to detect device type';
+                document.getElementById('manualLinks').style.display = 'block';
+            }
+        }
+
+        // Start detection on page load
+        window.addEventListener('load', () => {
+            setTimeout(redirect, 500);
+        });
+    </script>
+</body>
+</html>
