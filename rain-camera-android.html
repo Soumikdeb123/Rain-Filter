@@ -238,9 +238,10 @@
                 return {
                     x: Math.random() * this.canvas.width,
                     y: Math.random() * this.canvas.height - this.canvas.height,
-                    length: Math.random() * 22 + 10,
+                    length: Math.random() * 28 + 18, // Longer drops
                     speed: Math.random() * 3.5 + 2,
-                    opacity: Math.random() * 0.4 + 0.2
+                    opacity: Math.random() * 0.4 + 0.3,
+                    width: Math.random() * 5 + 4 // Thickness of droplet (thicker for Android)
                 };
             }
 
@@ -259,43 +260,60 @@
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 
                 for (let drop of this.drops) {
-                    // Draw thick realistic water droplet
-                    const gradient = this.ctx.createLinearGradient(
-                        drop.x - 2, drop.y,
-                        drop.x + 2, drop.y + drop.length
+                    // Create fat rounded droplet shape
+                    const centerX = drop.x;
+                    const topY = drop.y;
+                    const bottomY = drop.y + drop.length;
+                    const width = drop.width;
+                    
+                    // Main droplet body with gradient (glass-like)
+                    const gradient = this.ctx.createRadialGradient(
+                        centerX - width/3, topY + drop.length/3, 0,
+                        centerX, topY + drop.length/2, width
                     );
-                    gradient.addColorStop(0, `rgba(255, 255, 255, ${drop.opacity * 0.3})`);
-                    gradient.addColorStop(0.5, `rgba(255, 255, 255, ${drop.opacity})`);
-                    gradient.addColorStop(1, `rgba(200, 220, 255, ${drop.opacity * 0.6})`);
+                    gradient.addColorStop(0, `rgba(255, 255, 255, ${drop.opacity * 1.2})`);
+                    gradient.addColorStop(0.5, `rgba(220, 235, 255, ${drop.opacity * 0.8})`);
+                    gradient.addColorStop(1, `rgba(200, 220, 255, ${drop.opacity * 0.4})`);
                     
-                    // Main thick droplet body
+                    // Draw elongated rounded droplet
                     this.ctx.beginPath();
-                    this.ctx.strokeStyle = gradient;
-                    this.ctx.lineWidth = 3;
-                    this.ctx.lineCap = 'round';
-                    this.ctx.moveTo(drop.x, drop.y);
-                    this.ctx.lineTo(drop.x, drop.y + drop.length);
-                    this.ctx.stroke();
+                    this.ctx.fillStyle = gradient;
                     
-                    // Add highlight for realism
-                    this.ctx.beginPath();
-                    this.ctx.strokeStyle = `rgba(255, 255, 255, ${drop.opacity * 0.8})`;
-                    this.ctx.lineWidth = 1.5;
-                    this.ctx.moveTo(drop.x - 1, drop.y);
-                    this.ctx.lineTo(drop.x - 1, drop.y + drop.length * 0.7);
-                    this.ctx.stroke();
+                    // Top rounded cap
+                    this.ctx.arc(centerX, topY + width/2, width/2, Math.PI, 0);
                     
-                    // Add water droplet head (rounded top)
-                    this.ctx.beginPath();
-                    this.ctx.fillStyle = `rgba(255, 255, 255, ${drop.opacity * 0.9})`;
-                    this.ctx.arc(drop.x, drop.y, 2, 0, Math.PI * 2);
+                    // Body
+                    this.ctx.lineTo(centerX + width/2, bottomY - width/2);
+                    
+                    // Bottom rounded cap (tapered)
+                    this.ctx.arc(centerX, bottomY - width/2, width/2, 0, Math.PI);
+                    
+                    // Close path
+                    this.ctx.lineTo(centerX - width/2, topY + width/2);
                     this.ctx.fill();
                     
-                    // Add droplet tail (tapered end)
+                    // Add bright highlight (light reflection)
+                    const highlightGradient = this.ctx.createRadialGradient(
+                        centerX - width/4, topY + width, 0,
+                        centerX - width/4, topY + width, width/2
+                    );
+                    highlightGradient.addColorStop(0, `rgba(255, 255, 255, ${drop.opacity * 0.9})`);
+                    highlightGradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
+                    
                     this.ctx.beginPath();
-                    this.ctx.fillStyle = `rgba(200, 220, 255, ${drop.opacity * 0.5})`;
-                    this.ctx.arc(drop.x, drop.y + drop.length, 1.5, 0, Math.PI * 2);
+                    this.ctx.fillStyle = highlightGradient;
+                    this.ctx.arc(centerX - width/4, topY + width, width/2.5, 0, Math.PI * 2);
                     this.ctx.fill();
+                    
+                    // Add subtle outer glow
+                    this.ctx.beginPath();
+                    this.ctx.strokeStyle = `rgba(255, 255, 255, ${drop.opacity * 0.3})`;
+                    this.ctx.lineWidth = 1;
+                    this.ctx.arc(centerX, topY + width/2, width/2 + 1, Math.PI, 0);
+                    this.ctx.lineTo(centerX + width/2 + 1, bottomY - width/2);
+                    this.ctx.arc(centerX, bottomY - width/2, width/2 + 1, 0, Math.PI);
+                    this.ctx.lineTo(centerX - width/2 - 1, topY + width/2);
+                    this.ctx.stroke();
                 }
             }
 
